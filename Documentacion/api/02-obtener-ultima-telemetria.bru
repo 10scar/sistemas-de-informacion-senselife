@@ -1,0 +1,24 @@
+meta {
+  name: Obtener Última Telemetría
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{data_ms_url}}/api/v1/telemetria/:id_dispositivo/actual
+  body: none
+  auth: none
+}
+
+params:path {
+  id_dispositivo: 105
+}
+
+headers {
+  x-internal-token: {{internal_auth_token}}
+  Accept: application/json
+}
+
+docs {
+  Retorna un único objeto JSON con la lectura más reciente en la base de datos de series de tiempo.
+}

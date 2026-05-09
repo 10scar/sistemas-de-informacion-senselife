@@ -1,0 +1,33 @@
+meta {
+  name: Registrar Alerta en Monolito
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{sistem_url}}/api/v1/alertas
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  x-internal-token: {{internal_auth_token}}
+}
+
+body:json {
+  {
+    "id_paciente": 402,
+    "id_telemetria": 98453,
+    "estado": "pendiente"
+  }
+}
+
+docs {
+  El monolito (senselife-system) recibe esta petición.
+  1. Valida el token interno.
+  2. Inserta el registro en la tabla `alerta`.
+  3. (Opcional) El monolito dispara un evento interno de Auditoría o notifica a los WebSockets conectados 
+  
+  Respuesta esperada: 201 Created
+}

@@ -1,0 +1,38 @@
+meta {
+  name: Obtener Historial de Telemetría
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{data_ms_url}}/api/v1/telemetria/:id_dispositivo?fecha_inicio=2024-05-01T00:00:00Z&fecha_fin=2024-05-08T23:59:59Z
+  body: none
+  auth: none
+}
+
+params:query {
+  fecha_inicio: 2024-05-01T00:00:00Z
+  fecha_fin: 2024-05-08T23:59:59Z
+}
+
+params:path {
+  id_dispositivo: 105
+}
+
+headers {
+  x-internal-token: {{internal_auth_token}}
+  Accept: application/json
+}
+
+docs {
+  Retorna un arreglo JSON con la estructura:
+  [
+    {
+      "id": 98450,
+      "id_dispositivo": 105,
+      "frecuencia_cardiaca": 140.5,
+      "frecuencia_respiratoria": 45.2,
+      "tiempo": "2024-05-08T10:15:30Z"
+    }
+  ]
+}

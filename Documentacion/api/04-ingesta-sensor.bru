@@ -1,0 +1,37 @@
+meta {
+  name: Ingesta de Sensor IoT
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{broker_http_url}}/api/v1/telemetry/ingest
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  x-device-key: {{device_api_key}}
+}
+
+body:json {
+  {
+    "public_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "frecuencia_cardiaca": 155.0,
+    "frecuencia_respiratoria": 50.5,
+    "timestamp": "2024-05-08T10:15:30Z"
+  }
+}
+
+docs {
+  Nota: 
+  El hardware real puede publicar este mismo JSON por el protocolo MQTT bajo `senselife/devices/{public_id}/telemetry`.
+  
+  
+  Flujo interno esperado tras esta petición:
+  1. El Broker recibe el mensaje.
+  2. `senselife-data` lo consume de la cola.
+  3. `senselife-data` lo guarda en `senselife-data-db`.
+  4. Si los valores superan umbrales, se dispara la petición #3 (Registrar Alerta).
+}

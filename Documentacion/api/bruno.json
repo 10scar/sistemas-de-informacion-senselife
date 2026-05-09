@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Integración Senselife",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
