@@ -19,12 +19,9 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <span
-                class="inline-flex items-center rounded-full border border-accent-100 bg-accent-50 px-3 py-1.5 text-xs font-semibold tracking-wide text-accent-500">
-                {{ __('admin/dispositivos.tag') }}
-            </span>
             <button
                 type="button"
+                wire:click="openCreateModal"
                 class="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-neutral-0 shadow-elev-control transition-colors hover:bg-primary-700">
                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -171,6 +168,8 @@
                 <tbody class="text-sm">
                     @forelse ($dispositivos as $dispositivo)
                         <tr
+                            wire:key="dispositivo-row-{{ $dispositivo->id }}"
+                            wire:click="viewDispositivo({{ $dispositivo->id }})"
                             class="cursor-pointer border-b border-neutral-100 transition-colors last:border-b-0 hover:bg-neutral-50">
                             <td class="px-6 py-4 font-medium text-text">
                                 {{ $dispositivo->numero_serie ?? 'SL-'.str_pad((string) $dispositivo->id, 3, '0', STR_PAD_LEFT) }}
@@ -275,4 +274,8 @@
             @endif
         </div>
     </div>
+
+    @include('livewire.admin.dispositivos.detail-modal')
+    @include('livewire.admin.dispositivos.create-modal')
+    @include('livewire.admin.dispositivos.success-modal')
 </div>
