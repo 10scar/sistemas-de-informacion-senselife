@@ -23,5 +23,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
             'rol_id' => Rol::query()->where('nombre', 'Administrador')->value('id'),
         ]);
+
+        $this->call([
+            HardwareModeloSeeder::class,
+            DispositivoSeeder::class,
+        ]);
     }
 }

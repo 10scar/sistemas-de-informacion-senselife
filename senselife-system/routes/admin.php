@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
 use App\Livewire\Admin\Dashboard;
+use App\Livewire\Admin\Dispositivos\Index as DispositivosIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
@@ -13,5 +14,6 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::middleware(['auth', 'can:access-admin-panel'])->group(function (): void {
         Route::post('logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
         Route::get('/', Dashboard::class)->name('dashboard');
+        Route::get('dispositivos', DispositivosIndex::class)->name('dispositivos.index');
     });
 });

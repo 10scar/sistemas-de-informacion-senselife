@@ -13,7 +13,7 @@ return new class extends Migration
             $table->uuid('public_id')->unique();
             $table->foreignId('modelo_id')->constrained('modelos')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('numero_serie')->nullable();
-            $table->foreignId('centro_medico_id')->constrained('centros_medicos')->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('centro_medico_id')->nullable()->constrained('centros_medicos')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('estado')->default('activo');
             $table->string('ubicacion')->nullable();
             $table->timestampsTz();
