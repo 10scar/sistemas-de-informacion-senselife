@@ -12,11 +12,9 @@
 
         @livewireStyles
 
-        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @endif
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-[#FDFDFC] antialiased dark:bg-[#0a0a0a]">
+    <body class="min-h-screen antialiased">
         {{ $slot }}
 
         @livewireScripts
