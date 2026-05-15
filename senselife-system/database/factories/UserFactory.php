@@ -4,13 +4,21 @@ namespace Database\Factories;
 
 use App\Models\Usuario\Rol;
 use App\Models\Usuario\User;
+use App\Support\RolNombre;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
+    /**
+     * @var class-string<User>
+     */
+    protected $model = User::class;
+
     /**
      * The current password being used by the factory.
      */
@@ -25,8 +33,8 @@ class UserFactory extends Factory
     {
         return [
             'rol_id' => Rol::query()->firstOrCreate(
-                ['nombre' => 'Usuario de sistema'],
-                ['nombre' => 'Usuario de sistema'],
+                ['nombre' => RolNombre::ADMINISTRADOR],
+                ['nombre' => RolNombre::ADMINISTRADOR],
             )->id,
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
