@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            DepartamentoMunicipioSeeder::class,
+            CentroMedicoSeeder::class,
             HardwareModeloSeeder::class,
             DispositivoSeeder::class,
         ]);
