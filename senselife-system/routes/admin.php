@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\AdminAuthenticatedSessionController;
+use App\Livewire\Admin\CentrosMedicos\Index as CentrosMedicosIndex;
+use App\Livewire\Admin\CentrosMedicos\Show as CentrosMedicosShow;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Dispositivos\Index as DispositivosIndex;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +16,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::middleware(['auth', 'can:access-admin-panel'])->group(function (): void {
         Route::post('logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
         Route::get('/', Dashboard::class)->name('dashboard');
+        Route::get('centros-medicos', CentrosMedicosIndex::class)->name('centros-medicos.index');
+        Route::get('centros-medicos/{centro}', CentrosMedicosShow::class)->name('centros-medicos.show');
         Route::get('dispositivos', DispositivosIndex::class)->name('dispositivos.index');
     });
 });

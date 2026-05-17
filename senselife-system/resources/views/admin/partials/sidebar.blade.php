@@ -7,8 +7,8 @@
             'icon' => 'dashboard',
         ],
         [
-            'pattern' => 'admin.centros*',
-            'url' => '#',
+            'pattern' => 'admin.centros-medicos.*',
+            'url' => route('admin.centros-medicos.index'),
             'label' => __('admin/sidebar.nav_centros'),
             'icon' => 'building',
         ],
