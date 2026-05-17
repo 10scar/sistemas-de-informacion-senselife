@@ -2,6 +2,7 @@
 
 return [
     'failed' => 'Las credenciales no coinciden con nuestros registros.',
+    'inactive' => 'Esta cuenta está desactivada. Contacta al administrador del centro.',
     'admin_only_administrador' => 'Solo los usuarios con rol Administrador pueden acceder por esta vía.',
     'use_admin_login' => 'Los administradores del sistema deben iniciar sesión en :url.',
     'admin_login_link' => 'Acceso administración del sistema',

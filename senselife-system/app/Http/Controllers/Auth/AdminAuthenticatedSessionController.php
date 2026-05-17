@@ -36,6 +36,16 @@ class AdminAuthenticatedSessionController extends Controller
         /** @var User $user */
         $user = $request->user();
 
+        if (! $user->activo) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            throw ValidationException::withMessages([
+                'email' => __('auth.inactive'),
+            ]);
+        }
+
         if ($user->rol?->nombre !== RolNombre::ADMINISTRADOR) {
             Auth::logout();
             $request->session()->invalidate();
