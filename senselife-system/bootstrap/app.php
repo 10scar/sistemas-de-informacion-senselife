@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return route('admin.login');
             }
 
+            if ($request->is('portal', 'portal/*') && ! $request->is('portal/login')) {
+                return route('portal.login');
+            }
+
             return route('login');
         });
         $middleware->redirectUsersTo(fn () => route('dashboard'));

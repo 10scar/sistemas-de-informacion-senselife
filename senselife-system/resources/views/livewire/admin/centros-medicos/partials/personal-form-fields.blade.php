@@ -3,6 +3,7 @@
     $selectBaseClass = 'w-full cursor-pointer appearance-none rounded-lg border border-neutral-300 bg-neutral-0 py-2.5 pl-4 pr-10 text-sm text-text shadow-elev-control focus:border-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-100';
     $langPrefix = 'admin/centros-medicos.show.'.$modalLang;
     $fieldPrefix = $fieldIdPrefix ?? '';
+    $columns = (int) ($columns ?? 2);
 @endphp
 
 <div class="flex w-full min-w-0 flex-col gap-5">
@@ -13,7 +14,11 @@
             {{ __($langPrefix.'.section_basic') }}
         </h3>
 
+        @if ($columns === 2)
+        <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+        @else
         <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
+        @endif
             <div class="flex min-w-0 flex-col gap-2">
                 <label for="{{ $fieldPrefix }}form_med_nombre" class="text-sm font-medium text-text">
                     {{ __($langPrefix.'.nombre_label') }}
@@ -77,7 +82,7 @@
                 @enderror
             </div>
 
-            <div class="flex min-w-0 flex-col gap-2 md:col-span-2">
+            <div class="flex min-w-0 flex-col gap-2">
                 <label for="{{ $fieldPrefix }}form_med_registro_medico" class="text-sm font-medium text-text">
                     {{ __($langPrefix.'.registro_label') }}
                     <span class="text-error">*</span>
@@ -106,8 +111,12 @@
             {{ __($langPrefix.'.section_contact') }}
         </h3>
 
+        @if ($columns === 2)
+        <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+        @else
         <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
-            <div class="flex min-w-0 flex-col gap-2 md:col-span-2">
+        @endif
+            <div class="flex min-w-0 flex-col gap-2">
                 <label for="{{ $fieldPrefix }}form_med_correo" class="text-sm font-medium text-text">
                     {{ __($langPrefix.'.correo_label') }}
                     <span class="text-error">*</span>
@@ -149,7 +158,11 @@
             {{ __($langPrefix.'.section_access') }}
         </h3>
 
+        @if ($columns === 2)
+        <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+        @else
         <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
+        @endif
             <div class="flex min-w-0 flex-col gap-2">
                 <label for="{{ $fieldPrefix }}form_med_rol_id" class="text-sm font-medium text-text">
                     {{ __($langPrefix.'.rol_label') }}

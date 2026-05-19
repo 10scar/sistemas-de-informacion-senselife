@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DepartamentoMunicipioSeeder::class,
             CentroMedicoSeeder::class,
+            PacienteSeeder::class,
             HardwareModeloSeeder::class,
             DispositivoSeeder::class,
         ]);

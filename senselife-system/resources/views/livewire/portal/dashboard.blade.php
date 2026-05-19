@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6 p-6 md:p-8">
     @can('access-medico-portal')
         <div class="rounded-lg border border-neutral-200 bg-neutral-0 p-6 shadow-sm">
             <h2 class="font-display text-lg font-semibold text-text">{{ __('Área médica') }}</h2>

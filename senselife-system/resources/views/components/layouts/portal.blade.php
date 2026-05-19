@@ -13,9 +13,8 @@
                     @endif
                 </div>
                 <nav class="flex flex-wrap items-center gap-4 text-sm">
-                    <form method="post" action="{{ route('logout') }}" class="inline">
+                    <form method="post" action="{{ route('portal.logout') }}" class="inline">
                         @csrf
-                        @method('delete')
                         <button type="submit" class="text-neutral-600 underline-offset-4 hover:text-text hover:underline">
                             {{ __('Cerrar sesión') }}
                         </button>
