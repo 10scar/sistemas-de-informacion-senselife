@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senselife Data — Simulador</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; margin: 0; padding: 2rem; background: #f4f4f8; color: #14142a; }
+        h1 { margin: 0 0 0.5rem; font-size: 1.5rem; }
+        p.sub { color: #5e5e7a; margin: 0 0 1rem; line-height: 1.5; }
+        .card { background: #fff; border: 1px solid #e8e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+        .meta { font-size: 0.8rem; color: #5e5e7a; }
+        .meta code { font-size: 0.75rem; background: #f4f4f8; padding: 0.1rem 0.35rem; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #e8e8f0; font-size: 0.875rem; }
+        th { color: #7e7e9c; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
+        .badge-on { background: #edfaf3; color: #0d6e3a; }
+        .badge-off { background: #f4f4f8; color: #5e5e7a; }
+        .actions { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+        button { cursor: pointer; border: 1px solid #d4d4e8; background: #fff; border-radius: 8px; padding: 0.35rem 0.65rem; font-size: 0.75rem; font-weight: 600; }
+        button.primary { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+        button.danger { color: #8b1a1a; border-color: #e05252; }
+        button.warn { color: #7a4d04; border-color: #f0a523; }
+        form.inline { display: inline; }
+        .empty { color: #7e7e9c; padding: 1rem 0; line-height: 1.6; }
+        pre.cmd { background: #14142a; color: #e8e8f0; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.75rem; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Simulador de telemetría</h1>
+    <p class="sub">
+        Los dispositivos se leen desde <code>data/dispositivos.json</code> (exportado por senselife-system).
+        El estado del simulador (activo, lecturas) se guarda en <code>data/simulador_estado.json</code>.
+    </p>
+
+    <div class="card">
+        <h2 style="font-size:1rem;margin:0 0 0.75rem;">Catálogo</h2>
+        <p class="meta">
+            Archivo: <code>{{ catalog_path }}</code><br>
+            {% if exported_at %}
+            Última exportación: {{ exported_at }}
+            {% else %}
+            Sin exportar aún. Ejecute el comando en senselife-system (ver abajo).
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="card">
+        <h2 style="font-size:1rem;margin:0 0 1rem;">Dispositivos</h2>
+        {% if dispositivos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Serie</th>
+                    <th>Ubicación</th>
+                    <th>Estado sim.</th>
+                    <th>Última FC / FR</th>
+                    <th>Lecturas</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in dispositivos %}
+                <tr>
+                    <td>{{ d.id_dispositivo }}</td>
+                    <td>{{ d.numero_serie }}</td>
+                    <td>{{ d.ubicacion or '—' }}</td>
+                    <td>
+                        {% if d.simulacion_activa %}
+                        <span class="badge badge-on">Activo</span>
+                        {% else %}
+                        <span class="badge badge-off">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.ultima_fc is not none %}
+                        {{ '%.0f'|format(d.ultima_fc) }} bpm / {{ '%.0f'|format(d.ultima_fr) }} rpm
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>{{ d.lecturas_generadas }}</td>
+                    <td>
+                        <div class="actions">
+                            <form class="inline" method="post" action="/simulador/{{ d.id_dispositivo }}/toggle">
+                                <button type="submit" class="primary">
+                                    {% if d.simulacion_activa %}Desactivar{% else %}Activar{% endif %}
+                                </button>
+                            </form>
+                            <form class="inline" method="post" action="/simulador/{{ d.id_dispositivo }}/pulso?modo=bajo">
+                                <button type="submit" class="warn">Freq. bajas</button>
+                            </form>
+                            <form class="inline" method="post" action="/simulador/{{ d.id_dispositivo }}/pulso?modo=alto">
+                                <button type="submit" class="danger">Freq. altas</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty">
+            No hay dispositivos en el catálogo. Desde <strong>senselife-system</strong> ejecute:
+        </p>
+        <pre class="cmd">./vendor/bin/sail artisan telemetria:export-dispositivos</pre>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,7 @@
+.env
+data/simulador_estado.json
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.mypy_cache/

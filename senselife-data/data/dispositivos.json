@@ -1,0 +1,132 @@
+{
+    "exported_at": "2026-05-20T00:44:26+00:00",
+    "source": "senselife-system",
+    "dispositivos": [
+        {
+            "id": 1,
+            "numero_serie": "SL-001",
+            "ubicacion": "12aa",
+            "centro_medico_id": 6,
+            "centro_medico_nombre": "mi hospital",
+            "estado": "activo",
+            "public_id": "5592c76e-7970-491f-bb74-d2660201dd79"
+        },
+        {
+            "id": 2,
+            "numero_serie": "SL-002",
+            "ubicacion": null,
+            "centro_medico_id": 6,
+            "centro_medico_nombre": "mi hospital",
+            "estado": "inactivo",
+            "public_id": "67a0e826-dce4-455c-8bde-6611f1d92968"
+        },
+        {
+            "id": 3,
+            "numero_serie": "SL-003",
+            "ubicacion": "12",
+            "centro_medico_id": 6,
+            "centro_medico_nombre": "mi hospital",
+            "estado": "activo",
+            "public_id": "57bd0e22-5736-4e0a-a6a6-6d6745fdd9a9"
+        },
+        {
+            "id": 4,
+            "numero_serie": "SL-004",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "activo",
+            "public_id": "dd6b0227-026b-462d-9ec4-7458733bc0ee"
+        },
+        {
+            "id": 5,
+            "numero_serie": "SL-005",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "activo",
+            "public_id": "ae5a1948-7d31-4429-bde9-f39a3aaef5c8"
+        },
+        {
+            "id": 6,
+            "numero_serie": "SL-006",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "activo",
+            "public_id": "0107418b-6855-4786-8b21-0b04f46305ae"
+        },
+        {
+            "id": 7,
+            "numero_serie": "SL-007",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "activo",
+            "public_id": "d097595b-b1da-4f97-9e42-898a9d333e9e"
+        },
+        {
+            "id": 8,
+            "numero_serie": "SL-008",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "mantenimiento",
+            "public_id": "a7194fe6-7ef0-447f-83d8-69d4ba022c81"
+        },
+        {
+            "id": 9,
+            "numero_serie": "SL-009",
+            "ubicacion": null,
+            "centro_medico_id": 2,
+            "centro_medico_nombre": "Clínica San Rafael",
+            "estado": "activo",
+            "public_id": "d9cd7bc0-cc21-4e58-9acb-fbda5121072e"
+        },
+        {
+            "id": 10,
+            "numero_serie": "SL-010",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "mantenimiento",
+            "public_id": "472c915c-87fe-481f-b307-ad8df1c5330e"
+        },
+        {
+            "id": 11,
+            "numero_serie": "SL-011",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "mantenimiento",
+            "public_id": "b1dd156d-a0be-471c-91df-b7080b678e8f"
+        },
+        {
+            "id": 12,
+            "numero_serie": "SL-012",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "mantenimiento",
+            "public_id": "5ef9e9f0-c1f9-4917-92f9-50ffa52bae86"
+        },
+        {
+            "id": 13,
+            "numero_serie": "SL-013",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "mantenimiento",
+            "public_id": "3fa3f221-fd18-47d1-86ca-bcf615bfcd19"
+        },
+        {
+            "id": 14,
+            "numero_serie": "2143242",
+            "ubicacion": null,
+            "centro_medico_id": null,
+            "centro_medico_nombre": null,
+            "estado": "inactivo",
+            "public_id": "d408a0d1-7375-4c09-ba0f-506684963b06"
+        }
+    ]
+}

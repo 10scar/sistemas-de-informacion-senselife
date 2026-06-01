@@ -1,0 +1,30 @@
+meta {
+  name: Contexto de Dispositivo (Monolito)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{sistem_url}}/api/v1/dispositivos/:id_dispositivo/contexto
+  body: none
+  auth: none
+}
+
+params:path {
+  id_dispositivo: 1
+}
+
+headers {
+  x-internal-token: {{internal_auth_token}}
+  Accept: application/json
+}
+
+docs {
+  Usado por senselife-data para resolver el paciente activo asociado a un dispositivo.
+
+  Respuesta:
+  {
+    "id_dispositivo": 1,
+    "id_paciente": "uuid-del-paciente-o-null"
+  }
+}

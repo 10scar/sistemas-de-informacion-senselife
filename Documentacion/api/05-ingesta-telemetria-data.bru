@@ -1,0 +1,34 @@
+meta {
+  name: Ingesta Telemetría (senselife-data)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{data_ms_url}}/api/v1/telemetria/ingest
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  x-internal-token: {{internal_auth_token}}
+  Accept: application/json
+}
+
+body:json {
+  {
+    "id_dispositivo": 1,
+    "frecuencia_cardiaca": 140.5,
+    "frecuencia_respiratoria": 45.2,
+    "tiempo": "2024-05-08T10:15:30Z"
+  }
+}
+
+docs {
+  Persiste una lectura en MongoDB (`telemetria_frecuencia`).
+  Si los valores superan umbrales y el dispositivo tiene paciente asociado en senselife-system,
+  el microservicio llama a `POST {{sistem_url}}/api/v1/alertas`.
+
+  Respuesta esperada: 201 Created con el objeto de lectura (incluye `id` numérico).
+}

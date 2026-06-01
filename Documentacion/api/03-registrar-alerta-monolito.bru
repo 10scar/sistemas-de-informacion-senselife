@@ -17,16 +17,17 @@ headers {
 
 body:json {
   {
-    "id_paciente": 402,
+    "id_paciente": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "id_telemetria": 98453,
-    "estado": "pendiente"
+    "estado": "pendiente",
+    "tipo": "critico"
   }
 }
 
 docs {
   El monolito (senselife-system) recibe esta petición.
   1. Valida el token interno.
-  2. Inserta el registro en la tabla `alerta`.
+  2. Inserta el registro en la tabla `alertas` (`tipo`: critico | alerta).
   3. (Opcional) El monolito dispara un evento interno de Auditoría o notifica a los WebSockets conectados 
   
   Respuesta esperada: 201 Created
