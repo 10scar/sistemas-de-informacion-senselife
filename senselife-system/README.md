@@ -1,58 +1,270 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# senselife-system
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicación monolítica de gestión clínica y administrativa para el ecosistema SenseLife. Centraliza la información de centros médicos, dispositivos de monitoreo, pacientes (neonatos), consentimientos, alertas clínicas y la visualización de telemetría en tiempo casi real.
 
-## About Laravel
+## Descripción del sistema
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+`senselife-system` es una aplicación web construida con **Laravel 13**, **Livewire 3** y **Tailwind CSS** (tokens de diseño en `resources/css/app.css`). Ofrece dos interfaces principales:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Módulo | Ruta base | Perfil de acceso |
+|--------|-----------|------------------|
+| Panel administrativo | `/admin` | Rol Administrador |
+| Portal clínico | `/portal` | Roles Médico y Operador de centro |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+El sistema persiste datos relacionales en **PostgreSQL** (desarrollo con Laravel Sail). La telemetría de signos vitales (frecuencia cardíaca y respiratoria) se obtiene del microservicio **`senselife-data`** (FastAPI + MongoDB), desacoplado de la base principal.
 
-## Learning Laravel
+## Stack tecnológico
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.3+
+- Laravel 13
+- Livewire 3
+- PostgreSQL 17 (Sail)
+- Redis, Meilisearch, Mailpit (servicios auxiliares en desarrollo)
+- Vite (activos frontend)
+- Integración HTTP con `senselife-data` para telemetría
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Requisitos
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+| Componente | Versión recomendada |
+|------------|---------------------|
+| Docker y Docker Compose | v2 |
+| Composer | 2.x |
+| Node.js | 20+ (para Vite) |
+| Git | — |
 
-## Agentic Development
+Opcional: `senselife-data` en ejecución para telemetría en vivo (puerto 3001).
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalación y configuración inicial
+
+### 1. Clonar e instalar dependencias
+
+Desde el directorio `senselife-system`:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Configurar base de datos (Sail)
 
-## Contributing
+Descomente y configure PostgreSQL en `.env`:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```env
+DB_CONNECTION=pgsql
+DB_HOST=pgsql
+DB_PORT=5432
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
+```
 
-## Code of Conduct
+Inicie los contenedores:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+./vendor/bin/sail up -d
+```
 
-## Security Vulnerabilities
+Ejecute migraciones y datos de prueba:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan db:seed
+```
 
-## License
+### 3. Activos frontend
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev
+```
+
+En producción o CI:
+
+```bash
+npm run build
+```
+
+### 4. Integración con senselife-data
+
+Añada o verifique en `.env`:
+
+```env
+TELEMETRIA_DATA_URL=http://host.docker.internal:3001
+INTERNAL_API_TOKEN=<secreto compartido con senselife-data>
+ALERT_DEDUP_SECONDS=300
+```
+
+El valor de `INTERNAL_API_TOKEN` debe ser idéntico a `INTERNAL_TOKEN` en el archivo `.env` de `senselife-data`.
+
+Limpie la caché de configuración tras cambios:
+
+```bash
+./vendor/bin/sail artisan config:clear
+```
+
+Levante el microservicio de telemetría según su README (`../senselife-data/README.md`).
+
+### 5. Exportar dispositivos al simulador
+
+El simulador de `senselife-data` lee `../senselife-data/data/dispositivos.json`. Para generarlo desde la base de datos:
+
+```bash
+./scripts/export-dispositivos-simulador.sh
+```
+
+O directamente (con Sail y el volumen `senselife-data/data` montado en `compose.yaml`):
+
+```bash
+./vendor/bin/sail artisan telemetria:export-dispositivos
+```
+
+Variable en `.env`: `TELEMETRIA_EXPORT_DISPOSITIVOS_PATH` (con Sail: `/var/www/senselife-data-data/dispositivos.json`).
+
+## Variables de entorno relevantes
+
+| Variable | Descripción |
+|----------|-------------|
+| `APP_URL` | URL pública de la aplicación (por defecto: `http://localhost`). |
+| `APP_KEY` | Clave de cifrado Laravel (generada con `key:generate`). |
+| `DB_*` | Conexión a PostgreSQL. |
+| `TELEMETRIA_DATA_URL` | URL base del microservicio de telemetría. |
+| `INTERNAL_API_TOKEN` | Token para API interna y comunicación con `senselife-data`. |
+| `ALERT_DEDUP_SECONDS` | Segundos de ventana para evitar alertas duplicadas del mismo tipo. |
+| `TELEMETRIA_EXPORT_DISPOSITIVOS_PATH` | Ruta del JSON de catálogo para el simulador (por defecto `../senselife-data/data/dispositivos.json`). |
+| `VITE_*` | Configuración del bundler frontend. |
+
+Referencia completa: archivo `.env.example`.
+
+## API interna
+
+Rutas expuestas para integración con `senselife-data` y servicios internos. Requieren el encabezado `x-internal-token` con el valor de `INTERNAL_API_TOKEN`.
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `POST` | `/api/v1/alertas` | Crea una alerta clínica (`id_paciente` UUID, `id_telemetria`, `estado`, `tipo`: `critico` \| `alerta`). |
+| `GET` | `/api/v1/dispositivos/{dispositivo}/contexto` | Devuelve el paciente asociado activamente al dispositivo, si existe. |
+
+Documentación Bruno: `../Documentacion/api/`.
+
+## Funcionalidades principales
+
+### Panel administrativo (`/admin`)
+
+- Gestión de centros médicos y personal.
+- Inventario y asignación de dispositivos de hardware.
+- Acceso restringido al rol Administrador.
+
+### Portal clínico (`/portal`)
+
+- Listado y registro de pacientes por centro médico.
+- Vista individual de paciente con:
+  - Promedios de FC/FR (24 horas) desde `senselife-data`.
+  - Monitor en tiempo casi real (polling Livewire cada 3 segundos).
+  - Últimas alertas registradas en PostgreSQL.
+- Asociación opcional de dispositivo al crear paciente.
+
+### Modelo de alertas
+
+Tabla `alertas`: vínculo con paciente (UUID), referencia a lectura de telemetría (`id_telemetria`), estado (`pendiente`, `vista`, `cerrada`) y tipo (`critico`, `alerta`). El estado visual de las tarjetas de paciente deriva de la alerta activa.
+
+## Desarrollo local
+
+### Comandos habituales (Sail)
+
+```bash
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan db:seed
+./vendor/bin/sail npm run dev
+./vendor/bin/sail artisan test
+```
+
+### URLs de desarrollo
+
+| Recurso | URL |
+|---------|-----|
+| Aplicación | http://localhost |
+| Portal (login) | http://localhost/portal/login |
+| Admin (login) | http://localhost/admin/login |
+| Vite (HMR) | http://localhost:5173 |
+| Mailpit | http://localhost:8025 |
+
+### Pruebas automatizadas
+
+```bash
+./vendor/bin/sail artisan test
+```
+
+Filtros de ejemplo:
+
+```bash
+./vendor/bin/sail artisan test --filter=AlertaStore
+./vendor/bin/sail artisan test --filter=PacienteShow
+```
+
+## Despliegue
+
+### Desarrollo
+
+Utilice **Laravel Sail** (`compose.yaml`) con el perfil por defecto (PostgreSQL, Redis, Meilisearch, Mailpit).
+
+### Producción
+
+El repositorio incluye artefactos para despliegue en contenedor:
+
+- `Dockerfile`: imagen PHP-FPM de la aplicación.
+- `docker-compose.prod.yml`: orquestación con Nginx y perfiles `rds` / `local-db`.
+- `docker/nginx/default.conf`: configuración del servidor web.
+- `terraform/`: infraestructura AWS (VPC, EC2, RDS) — ver documentación en ese directorio.
+
+Pasos generales de despliegue productivo:
+
+1. Construir la imagen: `docker build -t senselife-app:latest .`
+2. Configurar `.env` de producción (base de datos, `APP_KEY`, URLs, tokens de telemetría).
+3. Ejecutar migraciones: `php artisan migrate --force`
+4. Compilar activos: `npm ci && npm run build`
+5. Levantar stack: `docker compose -f docker-compose.prod.yml --profile <perfil> up -d`
+6. Desplegar `senselife-data` en la misma red privada y apuntar `TELEMETRIA_DATA_URL` a su endpoint interno.
+
+Variables de ejemplo para producción en AWS: `.env.aws.example`.
+
+## Estructura del proyecto (referencia)
+
+```
+senselife-system/
+├── app/
+│   ├── Http/Controllers/     # Controladores web y API interna
+│   ├── Livewire/             # Componentes Admin y Portal
+│   ├── Models/               # Dominio: Paciente, Dispositivo, Alerta, etc.
+│   └── Services/Telemetria/  # Cliente HTTP hacia senselife-data
+├── database/migrations/      # Esquema relacional
+├── database/seeders/         # Datos iniciales
+├── resources/views/          # Plantillas Blade y Livewire
+├── routes/
+│   ├── admin.php
+│   ├── portal.php
+│   └── api.php
+├── docker/                   # Nginx y configuración de contenedor
+├── terraform/                # Infraestructura como código (AWS)
+└── compose.yaml              # Laravel Sail (desarrollo)
+```
+
+## Documentación complementaria
+
+| Recurso | Ubicación |
+|---------|-----------|
+| API entre servicios (Bruno) | `../Documentacion/api/` |
+| Microservicio de telemetría | `../senselife-data/README.md` |
+| Vista HTML de referencia API | `../Documentacion/index.html` |
+
+## Seguridad
+
+- No commitear archivos `.env` con credenciales reales.
+- Rotar `INTERNAL_API_TOKEN` en entornos productivos.
+- Restringir las rutas `/api/v1/*` a red interna o servicios autorizados.
+- Mantener `APP_DEBUG=false` en producción.
+
+## Licencia
+
+Uso interno del proyecto SenseLife. Consulte el repositorio raíz para términos de licencia aplicables.

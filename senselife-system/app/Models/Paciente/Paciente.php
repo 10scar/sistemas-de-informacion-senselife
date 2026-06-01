@@ -30,6 +30,7 @@ class Paciente extends Model
         'altura',
         'sexo',
         'fecha_alta',
+        'activo',
     ];
 
     protected function casts(): array
@@ -39,6 +40,7 @@ class Paciente extends Model
             'peso' => 'decimal:2',
             'altura' => 'decimal:2',
             'fecha_alta' => 'datetime',
+            'activo' => 'boolean',
         ];
     }
 
@@ -60,6 +62,7 @@ class Paciente extends Model
     public function asociacionActiva(): HasOne
     {
         return $this->hasOne(PacienteAsociacion::class)
+            ->where('activa', true)
             ->whereNull('fecha_retiro')
             ->latestOfMany();
     }

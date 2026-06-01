@@ -90,11 +90,10 @@
             </div>
 
             <div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                <button
-                    type="button"
-                    disabled
+                <a
+                    href="{{ route('portal.pacientes.show', $paciente) }}"
                     title="{{ __('portal/pacientes.view_details') }}"
-                    class="flex size-9 cursor-not-allowed items-center justify-center rounded-full border border-neutral-200 text-neutral-500 opacity-60"
+                    class="flex size-9 items-center justify-center rounded-full border border-neutral-300 bg-neutral-0 text-neutral-600 shadow-elev-control transition hover:border-primary-500 hover:text-primary-600"
                     aria-label="{{ __('portal/pacientes.view_details') }}">
                     <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         aria-hidden="true">
@@ -103,7 +102,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                </button>
+                </a>
                 <button
                     type="button"
                     disabled

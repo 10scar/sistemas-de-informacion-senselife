@@ -14,12 +14,14 @@ class PacienteAsociacion extends Model
         'dispositivo_id',
         'paciente_id',
         'fecha_retiro',
+        'activa',
     ];
 
     protected function casts(): array
     {
         return [
             'fecha_retiro' => 'datetime',
+            'activa' => 'boolean',
         ];
     }
 

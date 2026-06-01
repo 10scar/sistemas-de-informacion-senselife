@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'telemetria_data' => [
+        'url' => env('TELEMETRIA_DATA_URL', 'http://localhost:3001'),
+        'token' => env('INTERNAL_API_TOKEN', 'tu_token_secreto_aqui'),
+    ],
+
+    'internal_api' => [
+        'token' => env('INTERNAL_API_TOKEN', 'tu_token_secreto_aqui'),
+        'alert_dedup_seconds' => env('ALERT_DEDUP_SECONDS', 300),
+    ],
+
 ];

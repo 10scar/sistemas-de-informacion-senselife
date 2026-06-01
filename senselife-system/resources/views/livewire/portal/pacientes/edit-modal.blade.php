@@ -1,0 +1,62 @@
+@if ($showEditModal)
+    <div
+        wire:key="portal-edit-paciente-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-text/40 p-4 sm:p-6"
+        wire:click.self="closeEditModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="portal-edit-paciente-title">
+        <div
+            wire:click.stop
+            class="my-auto flex w-[min(100%,520px)] shrink-0 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-0 shadow-elev-card max-h-[min(calc(100vh-2rem),720px)]">
+
+            <div class="flex shrink-0 items-center gap-3 border-b border-neutral-100 bg-neutral-0 px-6 py-5">
+                <h2 id="portal-edit-paciente-title" class="text-lg font-semibold tracking-tight text-text">
+                    {{ __('portal/pacientes.edit_modal.title') }}
+                </h2>
+            </div>
+
+            <form wire:submit.prevent="actualizarPaciente" class="flex min-h-0 flex-1 flex-col overflow-hidden">
+                <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-6 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-neutral-300">
+                    @include('livewire.portal.pacientes.partials.paciente-form-fields', [
+                        'fieldPrefix' => 'edit_',
+                        'dispositivosOpciones' => $dispositivosEditables,
+                    ])
+                </div>
+
+                <div class="flex shrink-0 items-center justify-between gap-3 border-t border-neutral-100 bg-neutral-50 px-6 py-4">
+                    <div>
+                        @if ($editingDispositivoActualId !== null)
+                            <button
+                                type="button"
+                                wire:click="desasociarDispositivoEdicion"
+                                wire:confirm="{{ __('portal/pacientes.edit_modal.confirm_unlink') }}"
+                                class="rounded-lg border border-error-border bg-error-light px-4 py-2 text-sm font-medium text-error-text transition-colors hover:bg-error/10">
+                                {{ __('portal/pacientes.edit_modal.unlink_device') }}
+                            </button>
+                        @endif
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button
+                            type="button"
+                            wire:click="closeEditModal"
+                            class="rounded-lg border border-neutral-300 bg-neutral-0 px-5 py-2.5 text-sm font-medium text-neutral-700 shadow-elev-control transition hover:bg-neutral-50 hover:text-text">
+                            {{ __('portal/pacientes.create_modal.cancel') }}
+                        </button>
+                        <button
+                            type="submit"
+                            wire:loading.attr="disabled"
+                            class="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-neutral-0 shadow-elev-control transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-60">
+                            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            {{ __('portal/pacientes.edit_modal.submit') }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+@endif

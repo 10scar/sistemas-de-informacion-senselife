@@ -19,6 +19,7 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
+            - '../senselife-data/data:/var/www/senselife-data-data'
         networks:
             - sail
         depends_on:
