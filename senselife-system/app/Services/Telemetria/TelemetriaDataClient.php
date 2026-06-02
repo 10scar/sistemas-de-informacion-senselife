@@ -39,10 +39,84 @@ class TelemetriaDataClient
     /**
      * @return list<array{id: int, id_dispositivo: int, frecuencia_cardiaca: float, frecuencia_respiratoria: float, tiempo: string}>
      */
-    public function historial24h(int $idDispositivo): array
+    public function historialRango(int $idDispositivo, Carbon $inicio, Carbon $fin): array
+    {
+        $response = $this->client()->get("/api/v1/telemetria/{$idDispositivo}", [
+            'fecha_inicio' => $inicio->copy()->utc()->toIso8601String(),
+            'fecha_fin' => $fin->copy()->utc()->toIso8601String(),
+        ]);
+
+        if (! $response->successful()) {
+            return [];
+        }
+
+        return $response->json() ?? [];
+    }
+
+    /**
+     * @param  list<array{id_dispositivo: int, fecha_inicio: string, fecha_fin: string}>  $ventanas
+     * @return array{
+     *     stats: array{promedio_fc: float|null, min_fc: float|null, max_fc: float|null, conteo: int, tendencia_pct: int|null},
+     *     sparkline_fc: list<float>,
+     *     serie: list<array{tiempo: string, frecuencia_cardiaca: float, frecuencia_respiratoria: float}>
+     * }
+     */
+    public function historialResumen(array $ventanas, int $bucketSegundos, int $maxPuntos = 120): array
+    {
+        if ($ventanas === []) {
+            return [
+                'stats' => [
+                    'promedio_fc' => null,
+                    'min_fc' => null,
+                    'max_fc' => null,
+                    'conteo' => 0,
+                    'tendencia_pct' => null,
+                ],
+                'sparkline_fc' => [],
+                'serie' => [],
+            ];
+        }
+
+        $response = $this->client()->post('/api/v1/telemetria/resumen', [
+            'ventanas' => $ventanas,
+            'bucket_segundos' => $bucketSegundos,
+            'max_puntos' => $maxPuntos,
+        ]);
+
+        if (! $response->successful()) {
+            return [
+                'stats' => [
+                    'promedio_fc' => null,
+                    'min_fc' => null,
+                    'max_fc' => null,
+                    'conteo' => 0,
+                    'tendencia_pct' => null,
+                ],
+                'sparkline_fc' => [],
+                'serie' => [],
+            ];
+        }
+
+        return $response->json() ?? [
+            'stats' => [
+                'promedio_fc' => null,
+                'min_fc' => null,
+                'max_fc' => null,
+                'conteo' => 0,
+                'tendencia_pct' => null,
+            ],
+            'sparkline_fc' => [],
+            'serie' => [],
+        ];
+    }
+
+    /**
+     * @return list<array{id: int, id_dispositivo: int, frecuencia_cardiaca: float, frecuencia_respiratoria: float, tiempo: string}>
+     */
+    public function historialVentana(int $idDispositivo, int $horas = 12): array
     {
         $fin = Carbon::now()->utc();
-        $inicio = $fin->copy()->subHours(24);
+        $inicio = $fin->copy()->subHours($horas);
 
         $response = $this->client()->get("/api/v1/telemetria/{$idDispositivo}", [
             'fecha_inicio' => $inicio->toIso8601String(),
@@ -54,6 +128,14 @@ class TelemetriaDataClient
         }
 
         return $response->json() ?? [];
+    }
+
+    /**
+     * @return list<array{id: int, id_dispositivo: int, frecuencia_cardiaca: float, frecuencia_respiratoria: float, tiempo: string}>
+     */
+    public function historial24h(int $idDispositivo): array
+    {
+        return $this->historialVentana($idDispositivo, 24);
     }
 
     /**
