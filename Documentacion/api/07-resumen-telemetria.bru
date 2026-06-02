@@ -1,0 +1,55 @@
+meta {
+  name: Resumen agregado de telemetría
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{data_ms_url}}/api/v1/telemetria/resumen
+  body: json
+  auth: none
+}
+
+headers {
+  x-internal-token: {{internal_auth_token}}
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "ventanas": [
+      {
+        "id_dispositivo": 1,
+        "fecha_inicio": "2024-05-01T00:00:00Z",
+        "fecha_fin": "2024-05-08T23:59:59Z"
+      }
+    ],
+    "bucket_segundos": 900,
+    "max_puntos": 120
+  }
+}
+
+docs {
+  Retorna un resumen agregado para una o más ventanas dispositivo-tiempo:
+
+  {
+    "stats": {
+      "promedio_fc": 125.0,
+      "min_fc": 80.0,
+      "max_fc": 180.0,
+      "conteo": 5000,
+      "tendencia_pct": 5
+    },
+    "sparkline_fc": [120.0, 122.0],
+    "serie": [
+      {
+        "tiempo": "2024-05-08T10:00:00Z",
+        "frecuencia_cardiaca": 125.0,
+        "frecuencia_respiratoria": 40.0
+      }
+    ]
+  }
+
+  Usar múltiples ventanas cuando el paciente tuvo varios dispositivos o periodos de asociación.
+}

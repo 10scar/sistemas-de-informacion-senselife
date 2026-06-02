@@ -9,13 +9,19 @@ from app.services.telemetria_service import ingestar_lectura
 
 _simulador_tasks: dict[int, asyncio.Task] = {}
 
+# Rangos neonatales para el simulador (PALS/RCH; ver README «Simulador y rangos vitales»).
+RANGOS_SIMULADOR: dict[str, dict[str, tuple[float, float]]] = {
+    "normal": {"fc": (120.0, 160.0), "fr": (35.0, 55.0)},
+    "bajo": {"fc": (70.0, 85.0), "fr": (18.0, 24.0)},
+    "alto": {"fc": (175.0, 195.0), "fr": (62.0, 72.0)},
+}
+
 
 def _valores_por_modo(modo: str) -> tuple[float, float]:
-    if modo == "bajo":
-        return random.uniform(75, 95), random.uniform(18, 22)
-    if modo == "alto":
-        return random.uniform(185, 200), random.uniform(65, 75)
-    return random.uniform(130, 145), random.uniform(38, 48)
+    rangos = RANGOS_SIMULADOR.get(modo, RANGOS_SIMULADOR["normal"])
+    fc_min, fc_max = rangos["fc"]
+    fr_min, fr_max = rangos["fr"]
+    return random.uniform(fc_min, fc_max), random.uniform(fr_min, fr_max)
 
 
 async def listar_dispositivos_sim() -> list[DispositivoSim]:

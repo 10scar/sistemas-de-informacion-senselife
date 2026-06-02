@@ -184,9 +184,39 @@ Interfaz web en http://localhost:3001/ que lee el catálogo desde `data/disposit
    ./vendor/bin/sail artisan telemetria:export-dispositivos
    ```
 
-2. Abrir el simulador y usar **Activar** / **Desactivar**, **Freq. bajas** o **Freq. altas**.
+2. Abrir el simulador y usar **Activar** / **Desactivar**, **Freq. normales**, **Freq. bajas** o **Freq. altas**.
 
 Variables opcionales: `DISPOSITIVOS_FILE`, `SIMULADOR_ESTADO_FILE` (rutas relativas al proyecto).
+
+### Simulador y rangos vitales neonatales
+
+Referencias clínicas de referencia: PALS/AHA, RCH Melbourne (rangos pediátricos), NRP (AHA 2020/2025).
+
+**Rango normal en recién nacido (referencia)**
+
+| Signo | Rango habitual |
+|-------|----------------|
+| Frecuencia cardíaca | ~120–170 lpm (vigilia); rango amplio 85–205 lpm (0–3 meses) |
+| Frecuencia respiratoria | 30–60 rpm |
+
+**Umbrales de alerta del sistema** (variables `FC_*` / `FR_*` en `.env`; sin cambio por defecto):
+
+| Tipo | FC (lpm) | FR (rpm) |
+|------|----------|----------|
+| Alerta | &lt;100 / &gt;160 | &lt;25 / &gt;60 |
+| Crítico | &lt;80 / &gt;180 | &lt;20 / &gt;70 |
+
+Coherentes con NRP (FC &lt;100 → ventilación; taquipnea neonatal ≥60 rpm según WHO).
+
+**Modos del simulador** (definidos en `app/services/simulador_service.py`):
+
+| Modo | FC (lpm) | FR (rpm) | Efecto esperado |
+|------|----------|----------|-----------------|
+| **Normal** | 120–160 | 35–55 | Sin alertas |
+| **Bajo** | 70–85 | 18–24 | Alerta y/o crítico por bradicardia/bradipnea |
+| **Alto** | 175–195 | 62–72 | Alerta y/o crítico por taquicardia/taquipnea |
+
+Use **Freq. normales** para volver al modo normal tras probar frecuencias bajas o altas; si la simulación está activa, el loop automático seguirá generando lecturas del modo seleccionado.
 
 Si el simulador muestra «Sin exportar aún» pero el JSON existe en `data/`, el contenedor `api` puede haberse creado antes del volumen `./data`. Recréelo:
 

@@ -31,6 +31,10 @@ async def ensure_indexes() -> None:
         [("id_dispositivo", 1), ("tiempo", -1)],
         name="idx_dispositivo_tiempo",
     )
+    await db.telemetria_frecuencia.create_index(
+        [("id_dispositivo", 1), ("tiempo", 1)],
+        name="idx_dispositivo_tiempo_asc",
+    )
 
 
 async def ping_database() -> bool:

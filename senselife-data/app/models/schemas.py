@@ -19,6 +19,38 @@ class TelemetriaLectura(BaseModel):
     tiempo: datetime
 
 
+class TelemetriaVentana(BaseModel):
+    id_dispositivo: int
+    fecha_inicio: datetime
+    fecha_fin: datetime
+
+
+class TelemetriaResumenRequest(BaseModel):
+    ventanas: list[TelemetriaVentana] = Field(..., min_length=1)
+    bucket_segundos: int = Field(..., gt=0)
+    max_puntos: int = Field(default=120, ge=10, le=500)
+
+
+class TelemetriaResumenStats(BaseModel):
+    promedio_fc: float | None = None
+    min_fc: float | None = None
+    max_fc: float | None = None
+    conteo: int = 0
+    tendencia_pct: int | None = None
+
+
+class TelemetriaSeriePunto(BaseModel):
+    tiempo: datetime
+    frecuencia_cardiaca: float
+    frecuencia_respiratoria: float
+
+
+class TelemetriaResumenResponse(BaseModel):
+    stats: TelemetriaResumenStats
+    sparkline_fc: list[float]
+    serie: list[TelemetriaSeriePunto]
+
+
 class DispositivoSim(BaseModel):
     id_dispositivo: int
     numero_serie: str
@@ -40,5 +72,7 @@ class DispositivoContexto(BaseModel):
 class AlertaCreate(BaseModel):
     id_paciente: str
     id_telemetria: int
+    frecuencia_cardiaca: float | None = None
+    frecuencia_respiratoria: float | None = None
     estado: str = "pendiente"
     tipo: Literal["critico", "alerta"]

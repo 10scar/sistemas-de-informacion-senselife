@@ -28,3 +28,7 @@ async def test_ingest_critico_dispara_alerta(client, auth_headers):
     request_body = alert_route.calls.last.request.read().decode()
     assert paciente_uuid in request_body
     assert "critico" in request_body
+    assert "190" in request_body
+    assert "42" in request_body
+    assert "frecuencia_cardiaca" in request_body
+    assert "frecuencia_respiratoria" in request_body

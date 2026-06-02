@@ -3,6 +3,26 @@ import json
 
 import pytest
 
+from app.services.simulador_service import RANGOS_SIMULADOR
+
+
+@pytest.mark.asyncio
+async def test_pulso_normal_dentro_de_rango(client, auth_headers, simulador_files):
+    pulso = await client.post("/simulador/1/pulso?modo=normal", follow_redirects=False)
+    assert pulso.status_code == 303
+
+    actual = await client.get("/api/v1/telemetria/1/actual", headers=auth_headers)
+    assert actual.status_code == 200
+    body = actual.json()
+    fc_min, fc_max = RANGOS_SIMULADOR["normal"]["fc"]
+    fr_min, fr_max = RANGOS_SIMULADOR["normal"]["fr"]
+    assert fc_min <= body["frecuencia_cardiaca"] <= fc_max
+    assert fr_min <= body["frecuencia_respiratoria"] <= fr_max
+
+    _catalog, estado_path = simulador_files
+    estado = json.loads(estado_path.read_text())
+    assert estado["1"]["modo_simulacion"] == "normal"
+
 
 @pytest.mark.asyncio
 async def test_pulso_alto_con_catalogo(client, auth_headers, simulador_files):
@@ -11,7 +31,9 @@ async def test_pulso_alto_con_catalogo(client, auth_headers, simulador_files):
 
     actual = await client.get("/api/v1/telemetria/1/actual", headers=auth_headers)
     assert actual.status_code == 200
-    assert actual.json()["frecuencia_cardiaca"] >= 180
+    body = actual.json()
+    fc_min, _ = RANGOS_SIMULADOR["alto"]["fc"]
+    assert body["frecuencia_cardiaca"] >= fc_min
 
     _catalog, estado_path = simulador_files
     estado = json.loads(estado_path.read_text())

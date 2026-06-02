@@ -3,10 +3,11 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.security import verify_internal_token
-from app.models.schemas import TelemetriaIngest, TelemetriaLectura
+from app.models.schemas import TelemetriaIngest, TelemetriaLectura, TelemetriaResumenRequest, TelemetriaResumenResponse
 from app.services.telemetria_service import (
     ingestar_lectura,
     obtener_historial,
+    obtener_resumen,
     obtener_ultima_lectura,
 )
 
@@ -20,6 +21,11 @@ router = APIRouter(
 @router.post("/ingest", status_code=status.HTTP_201_CREATED, response_model=TelemetriaLectura)
 async def ingest(payload: TelemetriaIngest) -> TelemetriaLectura:
     return await ingestar_lectura(payload)
+
+
+@router.post("/resumen", response_model=TelemetriaResumenResponse)
+async def resumen(payload: TelemetriaResumenRequest) -> TelemetriaResumenResponse:
+    return await obtener_resumen(payload)
 
 
 @router.get("/{id_dispositivo:int}/actual", response_model=TelemetriaLectura)

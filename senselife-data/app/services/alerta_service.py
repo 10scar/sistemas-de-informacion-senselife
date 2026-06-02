@@ -50,6 +50,8 @@ async def registrar_alerta_en_monolito(
     payload = AlertaCreate(
         id_paciente=id_paciente,
         id_telemetria=lectura.id,
+        frecuencia_cardiaca=lectura.frecuencia_cardiaca,
+        frecuencia_respiratoria=lectura.frecuencia_respiratoria,
         estado="pendiente",
         tipo=tipo,  # type: ignore[arg-type]
     )
