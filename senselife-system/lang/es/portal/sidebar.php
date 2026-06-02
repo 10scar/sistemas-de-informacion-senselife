@@ -5,5 +5,6 @@ return [
     'nav_dashboard' => 'Dashboard',
     'nav_pacientes' => 'Pacientes',
     'nav_alertas' => 'Alertas',
+    'nav_dispositivos' => 'Dispositivos',
     'nav_personal' => 'Gestión personal',
 ];

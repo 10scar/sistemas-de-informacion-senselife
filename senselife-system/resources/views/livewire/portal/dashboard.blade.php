@@ -62,7 +62,11 @@
                 </div>
             </article>
 
-            <article class="rounded-2xl border border-neutral-200 bg-neutral-0 px-5 py-5 shadow-elev-card">
+            <a
+                href="{{ route('portal.dispositivos.index') }}"
+                wire:navigate
+                class="block rounded-2xl border border-neutral-200 bg-neutral-0 px-5 py-5 shadow-elev-card transition hover:border-primary-200 hover:shadow-md"
+            >
                 <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">
                     {{ __('portal/dashboard.card_devices') }}
                 </p>
@@ -81,7 +85,7 @@
                         {{ __('portal/dashboard.card_devices_available', ['count' => $dispositivosDisponibles]) }}
                     </span>
                 </div>
-            </article>
+            </a>
 
             <article class="rounded-2xl border border-neutral-200 bg-neutral-0 px-5 py-5 shadow-elev-card">
                 <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">
