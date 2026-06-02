@@ -10,4 +10,9 @@
             </main>
         </div>
     </div>
+    @auth
+        @can('access-portal-panel')
+            @livewire('portal.alertas.notifier')
+        @endcan
+    @endauth
 </x-layouts.app>

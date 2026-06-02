@@ -17,6 +17,8 @@ class AlertaController extends Controller
         $data = $request->validate([
             'id_paciente' => ['required', 'uuid', 'exists:pacientes,id'],
             'id_telemetria' => ['required', 'integer', 'min:1'],
+            'frecuencia_cardiaca' => ['nullable', 'numeric', 'gt:0'],
+            'frecuencia_respiratoria' => ['nullable', 'numeric', 'gt:0'],
             'estado' => ['required', 'string', Rule::in(array_column(AlertaEstado::cases(), 'value'))],
             'tipo' => ['required', 'string', Rule::in(array_column(AlertaTipo::cases(), 'value'))],
         ]);
@@ -41,6 +43,8 @@ class AlertaController extends Controller
             'fecha_creacion' => now(),
             'id_paciente' => $data['id_paciente'],
             'id_telemetria' => $data['id_telemetria'],
+            'frecuencia_cardiaca' => $data['frecuencia_cardiaca'] ?? null,
+            'frecuencia_respiratoria' => $data['frecuencia_respiratoria'] ?? null,
             'estado' => $estado,
             'tipo' => $tipo,
         ]);

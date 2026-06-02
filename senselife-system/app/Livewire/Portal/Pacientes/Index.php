@@ -29,7 +29,7 @@ class Index extends Component
     use ManagesPacienteAlertas;
     use WithPagination;
 
-    protected string $paginationTheme = 'tailwind';
+    protected string $paginationTheme = 'portal';
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -170,6 +170,7 @@ class Index extends Component
         $this->showAlertasModal = false;
         $this->alertasModalPacienteId = null;
         $this->alertasModalPacienteNombre = '';
+        $this->cerrarModalesConfirmacionAlerta();
     }
 
     public function desactivarPaciente(string $pacienteId): void
@@ -494,8 +495,9 @@ class Index extends Component
         if ($this->showAlertasModal && $this->alertasModalPacienteId !== null) {
             $alertasModal = Alerta::query()
                 ->where('id_paciente', $this->alertasModalPacienteId)
+                ->with(['paciente.asociacionActiva.dispositivo'])
                 ->orderByDesc('fecha_creacion')
-                ->limit(10)
+                ->limit(30)
                 ->get();
         }
 

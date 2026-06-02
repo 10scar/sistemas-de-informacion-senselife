@@ -13,15 +13,9 @@
     $frPromDisplay = $frPromedio !== null ? number_format($frPromedio, 0) : __('portal/pacientes.vital_placeholder');
 @endphp
 
-<div wire:poll.3s="refrescarTelemetria" class="w-full px-6 py-6 md:px-10 md:py-8 lg:px-12">
-    <style>
-        @keyframes sweep {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        .scan-line { animation: sweep 3s linear infinite; }
-    </style>
-
+<div
+    @if ($dispositivo !== null) wire:poll.3s="refrescarTelemetria" @endif
+    class="w-full px-6 py-6 md:px-10 md:py-8 lg:px-12">
     <div class="mb-6">
         <a
             href="{{ route('portal.pacientes.index') }}"
@@ -81,10 +75,12 @@
                 class="h-10 flex-1 rounded-xl border border-neutral-300 bg-neutral-0 px-4 text-sm font-semibold text-primary-600 shadow-elev-control transition hover:bg-accent-50 sm:flex-none">
                 {{ __('portal/pacientes.show.edit') }}
             </button>
-            <button type="button" disabled
-                class="h-10 flex-1 cursor-not-allowed rounded-xl border border-neutral-300 bg-neutral-0 px-4 text-sm font-semibold text-neutral-500 opacity-60 shadow-elev-control sm:flex-none">
+            <a
+                href="{{ route('portal.pacientes.historial', $paciente) }}"
+                wire:navigate
+                class="flex h-10 flex-1 items-center justify-center rounded-xl border border-neutral-300 bg-neutral-0 px-4 text-sm font-semibold text-primary-600 shadow-elev-control transition hover:bg-accent-50 sm:flex-none">
                 {{ __('portal/pacientes.show.history') }}
-            </button>
+            </a>
         </div>
     </section>
 
@@ -92,120 +88,42 @@
         <div class="mb-6 rounded-xl border border-info-border bg-info-light px-4 py-3 text-sm text-info-text">
             {{ __('portal/pacientes.show.no_device') }}
         </div>
+    @else
+        <section class="mb-6 grid grid-cols-1 gap-5 xl:grid-cols-2">
+            @include('livewire.portal.pacientes.partials.monitor-vital-card', [
+                'title' => __('portal/pacientes.show.fc_title'),
+                'valor' => $fcDisplay,
+                'unidad' => __('portal/pacientes.show.unit_lpm'),
+                'promedio' => $fcPromDisplay,
+                'tendenciaPct' => $fcTendenciaPct,
+                'chart' => $fcChart,
+                'strokeColor' => 'var(--color-primary-600)',
+            ])
+            @include('livewire.portal.pacientes.partials.monitor-vital-card', [
+                'title' => __('portal/pacientes.show.fr_title'),
+                'valor' => $frDisplay,
+                'unidad' => __('portal/pacientes.show.unit_rpm'),
+                'promedio' => $frPromDisplay,
+                'tendenciaPct' => $frTendenciaPct,
+                'chart' => $frChart,
+                'strokeColor' => 'var(--color-primary-600)',
+            ])
+        </section>
     @endif
-
-    <section class="mb-6 flex flex-col gap-3">
-        <h2 class="px-1 text-xs font-bold uppercase tracking-wider text-neutral-500">
-            {{ __('portal/pacientes.show.averages_title') }}
-        </h2>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div class="rounded-2xl bg-neutral-0 p-4 shadow-elev-control">
-                <span class="text-[10px] font-bold tracking-wider text-neutral-500">
-                    {{ __('portal/pacientes.show.fc_avg') }}
-                </span>
-                <div class="mt-1 flex items-baseline gap-1">
-                    <span class="text-2xl font-extrabold text-text">{{ $fcPromDisplay }}</span>
-                    <span class="text-xs font-semibold text-neutral-500">bpm</span>
-                </div>
-            </div>
-            <div class="rounded-2xl bg-neutral-0 p-4 shadow-elev-control">
-                <span class="text-[10px] font-bold tracking-wider text-neutral-500">
-                    {{ __('portal/pacientes.show.fr_avg') }}
-                </span>
-                <div class="mt-1 flex items-baseline gap-1">
-                    <span class="text-2xl font-extrabold text-text">{{ $frPromDisplay }}</span>
-                    <span class="text-xs font-semibold text-neutral-500">rpm</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="mb-6 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-2 px-1">
-            <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-500">
-                {{ __('portal/pacientes.show.monitor_title') }}
-            </h2>
-            @if ($dispositivo !== null)
-                <div class="flex items-center gap-1.5 rounded-full border border-error-border bg-error-light px-2 py-0.5">
-                    <span class="size-1.5 animate-pulse rounded-full bg-error" aria-hidden="true"></span>
-                    <span class="text-[10px] font-bold uppercase tracking-wide text-error">Live</span>
-                </div>
-                <span class="text-[10px] font-medium text-neutral-500">
-                    {{ __('portal/pacientes.show.monitor_window', ['count' => $puntosVentana, 'max' => $ventanaMax]) }}
-                </span>
-            @endif
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <div class="flex flex-col gap-4 rounded-2xl bg-neutral-0 p-5 shadow-elev-control">
-                <div class="flex items-center justify-between px-1">
-                    <span class="text-sm font-bold text-text">{{ __('portal/pacientes.show.ecg_wave') }}</span>
-                    <span class="text-lg font-bold text-error">
-                        {{ $fcDisplay }}
-                        <span class="text-xs text-neutral-500">bpm</span>
-                    </span>
-                </div>
-                <div class="relative h-[140px] overflow-hidden rounded-xl border border-neutral-100 bg-neutral-50">
-                    @if ($puntosVentana > 0)
-                        <span class="absolute left-2 top-2 z-10 rounded bg-neutral-0/90 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-500">
-                            {{ __('portal/pacientes.show.monitor_range_fc', [
-                                'min' => number_format($fcRango['min'], 0),
-                                'max' => number_format($fcRango['max'], 0),
-                            ]) }}
-                        </span>
-                    @endif
-                    <div class="scan-line pointer-events-none absolute inset-0 z-[1] w-12 bg-gradient-to-r from-transparent via-error/20 to-transparent"></div>
-                    <svg class="relative z-0 h-full w-full" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
-                        <path
-                            d="{{ $fcWavePath }}"
-                            fill="none" stroke="var(--color-error)" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-4 rounded-2xl bg-neutral-0 p-5 shadow-elev-control">
-                <div class="flex items-center justify-between px-1">
-                    <span class="text-sm font-bold text-text">{{ __('portal/pacientes.show.resp_wave') }}</span>
-                    <span class="text-lg font-bold text-info">
-                        {{ $frDisplay }}
-                        <span class="text-xs text-neutral-500">rpm</span>
-                    </span>
-                </div>
-                <div class="relative h-[140px] overflow-hidden rounded-xl border border-neutral-100 bg-neutral-50">
-                    @if ($puntosVentana > 0)
-                        <span class="absolute left-2 top-2 z-10 rounded bg-neutral-0/90 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-500">
-                            {{ __('portal/pacientes.show.monitor_range_fr', [
-                                'min' => number_format($frRango['min'], 0),
-                                'max' => number_format($frRango['max'], 0),
-                            ]) }}
-                        </span>
-                    @endif
-                    <div class="scan-line pointer-events-none absolute inset-0 z-[1] w-12 bg-gradient-to-r from-transparent via-info/20 to-transparent"></div>
-                    <svg class="relative z-0 h-full w-full" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
-                        <path
-                            d="{{ $frWavePath }}"
-                            fill="none" stroke="var(--color-info)" stroke-width="2.5" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <section class="flex flex-col gap-3">
         <h2 class="px-1 text-xs font-bold uppercase tracking-wider text-neutral-500">
             {{ __('portal/pacientes.show.alerts_title') }}
         </h2>
-        <div class="divide-y divide-neutral-100 overflow-hidden rounded-2xl bg-neutral-0 shadow-elev-control">
-            @forelse ($alertasRecientes as $alerta)
-                @include('livewire.portal.pacientes.partials.alerta-row', ['alerta' => $alerta])
-            @empty
-                <p class="p-4 text-sm text-neutral-500">{{ __('portal/pacientes.show.no_alerts') }}</p>
-            @endforelse
+        <div class="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-0 shadow-elev-card">
+            @include('livewire.portal.pacientes.partials.alertas-table', [
+                'alertas' => $alertasRecientes,
+                'showActions' => true,
+            ])
         </div>
     </section>
 
     @include('livewire.portal.pacientes.edit-modal')
     @include('livewire.portal.pacientes.success-modal')
+    @include('livewire.portal.pacientes.partials.alertas-confirm-modals')
 </div>

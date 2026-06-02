@@ -16,6 +16,8 @@ class Alerta extends Model
         'fecha_creacion',
         'id_paciente',
         'id_telemetria',
+        'frecuencia_cardiaca',
+        'frecuencia_respiratoria',
         'estado',
         'tipo',
     ];
@@ -25,6 +27,8 @@ class Alerta extends Model
         return [
             'fecha_creacion' => 'datetime',
             'id_telemetria' => 'integer',
+            'frecuencia_cardiaca' => 'decimal:2',
+            'frecuencia_respiratoria' => 'decimal:2',
             'estado' => AlertaEstado::class,
             'tipo' => AlertaTipo::class,
         ];

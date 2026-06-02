@@ -24,8 +24,6 @@ class Show extends Component
 {
     use ManagesPacienteAlertas;
 
-    public const MONITOR_VENTANA_PUNTOS = 60;
-
     public Paciente $paciente;
 
     public bool $showEditModal = false;
@@ -64,6 +62,17 @@ class Show extends Component
     /** @var list<float> */
     public array $frHistorial = [];
 
+    /** @var list<string> */
+    public array $tiemposHistorial = [];
+
+    public ?int $fcTendenciaPct = null;
+
+    public ?int $frTendenciaPct = null;
+
+    public bool $historialCargado = false;
+
+    public ?int $telemetriaDispositivoId = null;
+
     public ?int $ultimaLecturaId = null;
 
     public function mount(Paciente $paciente): void
@@ -76,7 +85,7 @@ class Show extends Component
 
         $this->paciente = $paciente->load([
             'asociacionActiva.dispositivo',
-            'alertas' => fn ($q) => $q->orderByDesc('fecha_creacion')->limit(10),
+            'alertas' => fn ($q) => $q->with(['paciente.asociacionActiva.dispositivo'])->orderByDesc('fecha_creacion')->limit(10),
         ]);
 
         $this->refrescarTelemetria(app(TelemetriaDataClient::class));
@@ -255,6 +264,19 @@ class Show extends Component
             return;
         }
 
+        if ($this->telemetriaDispositivoId !== $dispositivoId) {
+            $this->historialCargado = false;
+            $this->fcHistorial = [];
+            $this->frHistorial = [];
+            $this->tiemposHistorial = [];
+            $this->ultimaLecturaId = null;
+            $this->telemetriaDispositivoId = $dispositivoId;
+        }
+
+        if (! $this->historialCargado) {
+            $this->cargarHistorialReciente($client, $dispositivoId);
+        }
+
         $ultima = $client->ultimaLectura($dispositivoId);
         if ($ultima !== null) {
             $this->fcActual = (float) $ultima['frecuencia_cardiaca'];
@@ -265,14 +287,58 @@ class Show extends Component
         $promedios = $client->promedios24h($dispositivoId);
         $this->fcPromedio = $promedios['fc'];
         $this->frPromedio = $promedios['fr'];
+        $this->actualizarTendencias();
 
         $this->paciente->load([
-            'alertas' => fn ($q) => $q->orderByDesc('fecha_creacion')->limit(10),
+            'alertas' => fn ($q) => $q->with(['paciente.asociacionActiva.dispositivo'])->orderByDesc('fecha_creacion')->limit(10),
         ]);
     }
 
+    private function cargarHistorialReciente(TelemetriaDataClient $client, int $dispositivoId): void
+    {
+        $horas = (int) config('telemetria.monitor_horas', 12);
+        $maxPuntos = (int) config('telemetria.monitor_max_puntos', 80);
+
+        $lecturas = collect($client->historialVentana($dispositivoId, $horas))
+            ->sortBy('tiempo')
+            ->values()
+            ->all();
+
+        $lecturas = TelemetriaWaveform::downsampleLecturas($lecturas, $maxPuntos);
+        $this->aplicarLecturasAlHistorial($lecturas);
+        $this->historialCargado = true;
+    }
+
     /**
-     * @param  array{id: int, frecuencia_cardiaca: float, frecuencia_respiratoria: float}  $lectura
+     * @param  list<array{id: int, frecuencia_cardiaca: float, frecuencia_respiratoria: float, tiempo: string}>  $lecturas
+     */
+    private function aplicarLecturasAlHistorial(array $lecturas): void
+    {
+        if ($lecturas === []) {
+            return;
+        }
+
+        $this->fcHistorial = array_map(
+            fn (array $l): float => (float) $l['frecuencia_cardiaca'],
+            $lecturas,
+        );
+        $this->frHistorial = array_map(
+            fn (array $l): float => (float) $l['frecuencia_respiratoria'],
+            $lecturas,
+        );
+        $this->tiemposHistorial = array_map(
+            fn (array $l): string => (string) $l['tiempo'],
+            $lecturas,
+        );
+
+        $ultima = $lecturas[count($lecturas) - 1];
+        $this->ultimaLecturaId = (int) $ultima['id'];
+        $this->fcActual = (float) $ultima['frecuencia_cardiaca'];
+        $this->frActual = (float) $ultima['frecuencia_respiratoria'];
+    }
+
+    /**
+     * @param  array{id: int, frecuencia_cardiaca: float, frecuencia_respiratoria: float, tiempo?: string}  $lectura
      */
     private function agregarPuntoHistorial(array $lectura): void
     {
@@ -285,15 +351,28 @@ class Show extends Component
         $this->ultimaLecturaId = $id;
         $this->fcHistorial[] = (float) $lectura['frecuencia_cardiaca'];
         $this->frHistorial[] = (float) $lectura['frecuencia_respiratoria'];
+        $this->tiemposHistorial[] = (string) ($lectura['tiempo'] ?? now()->toIso8601String());
 
-        if (count($this->fcHistorial) > self::MONITOR_VENTANA_PUNTOS) {
-            $this->fcHistorial = array_values(
-                array_slice($this->fcHistorial, -self::MONITOR_VENTANA_PUNTOS),
-            );
-            $this->frHistorial = array_values(
-                array_slice($this->frHistorial, -self::MONITOR_VENTANA_PUNTOS),
-            );
+        $maxPuntos = (int) config('telemetria.monitor_max_puntos', 80);
+        if (count($this->fcHistorial) > $maxPuntos) {
+            $this->fcHistorial = array_values(array_slice($this->fcHistorial, -$maxPuntos));
+            $this->frHistorial = array_values(array_slice($this->frHistorial, -$maxPuntos));
+            $this->tiemposHistorial = array_values(array_slice($this->tiemposHistorial, -$maxPuntos));
         }
+    }
+
+    private function actualizarTendencias(): void
+    {
+        $this->fcTendenciaPct = TelemetriaWaveform::tendenciaVsMediaHoraria(
+            $this->fcActual,
+            $this->fcHistorial,
+            $this->tiemposHistorial,
+        );
+        $this->frTendenciaPct = TelemetriaWaveform::tendenciaVsMediaHoraria(
+            $this->frActual,
+            $this->frHistorial,
+            $this->tiemposHistorial,
+        );
     }
 
     private function reiniciarTelemetria(): void
@@ -304,6 +383,11 @@ class Show extends Component
         $this->frPromedio = null;
         $this->fcHistorial = [];
         $this->frHistorial = [];
+        $this->tiemposHistorial = [];
+        $this->fcTendenciaPct = null;
+        $this->frTendenciaPct = null;
+        $this->historialCargado = false;
+        $this->telemetriaDispositivoId = null;
         $this->ultimaLecturaId = null;
     }
 
@@ -315,8 +399,23 @@ class Show extends Component
             ? __('portal/pacientes.sex_f')
             : __('portal/pacientes.sex_m');
 
-        $fcRango = TelemetriaWaveform::rango($this->fcHistorial, 80.0, 180.0);
-        $frRango = TelemetriaWaveform::rango($this->frHistorial, 15.0, 70.0);
+        $fcUmbrales = config('telemetria.monitor_umbrales.fc');
+        $frUmbrales = config('telemetria.monitor_umbrales.fr');
+
+        $fcChart = TelemetriaWaveform::chartContext(
+            $this->fcHistorial,
+            $this->tiemposHistorial,
+            80.0,
+            180.0,
+            $fcUmbrales,
+        );
+        $frChart = TelemetriaWaveform::chartContext(
+            $this->frHistorial,
+            $this->tiemposHistorial,
+            15.0,
+            70.0,
+            $frUmbrales,
+        );
 
         $dispositivosEditables = collect();
         if ($this->showEditModal && $centroId !== null) {
@@ -335,12 +434,12 @@ class Show extends Component
             'dispositivo' => $dispositivo,
             'sexoLabel' => $sexoLabel,
             'alertasRecientes' => $this->paciente->alertas,
-            'fcWavePath' => TelemetriaWaveform::svgPath($this->fcHistorial, 80.0, 180.0),
-            'frWavePath' => TelemetriaWaveform::svgPath($this->frHistorial, 15.0, 70.0),
-            'fcRango' => $fcRango,
-            'frRango' => $frRango,
-            'puntosVentana' => count($this->fcHistorial),
-            'ventanaMax' => self::MONITOR_VENTANA_PUNTOS,
+            'fcChart' => $fcChart,
+            'frChart' => $frChart,
+            'fcUmbrales' => $fcUmbrales,
+            'frUmbrales' => $frUmbrales,
+            'fcTendenciaPct' => $this->fcTendenciaPct,
+            'frTendenciaPct' => $this->frTendenciaPct,
             'dispositivosEditables' => $dispositivosEditables,
         ]);
     }
@@ -350,7 +449,7 @@ class Show extends Component
         $this->paciente->refresh();
         $this->paciente->load([
             'asociacionActiva.dispositivo',
-            'alertas' => fn ($q) => $q->orderByDesc('fecha_creacion')->limit(10),
+            'alertas' => fn ($q) => $q->with(['paciente.asociacionActiva.dispositivo'])->orderByDesc('fecha_creacion')->limit(10),
         ]);
     }
 
@@ -391,7 +490,7 @@ class Show extends Component
         }
 
         $this->paciente->load([
-            'alertas' => fn ($q) => $q->orderByDesc('fecha_creacion')->limit(10),
+            'alertas' => fn ($q) => $q->with(['paciente.asociacionActiva.dispositivo'])->orderByDesc('fecha_creacion')->limit(10),
         ]);
     }
 }

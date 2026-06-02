@@ -8,7 +8,7 @@
         aria-labelledby="portal-alertas-title">
         <div
             wire:click.stop
-            class="relative flex max-h-[88vh] w-full max-w-3xl min-h-0 min-w-0 flex-col overflow-hidden rounded-3xl bg-neutral-0 p-7 shadow-elev-card">
+            class="relative flex max-h-[88vh] w-full max-w-5xl min-h-0 min-w-0 flex-col overflow-hidden rounded-3xl bg-neutral-0 p-7 shadow-elev-card">
             <div class="mb-4 flex items-start justify-between gap-4">
                 <div>
                     <h2 id="portal-alertas-title" class="text-xl font-bold leading-tight text-text md:text-[22px]">
@@ -29,12 +29,13 @@
             </div>
 
             <div class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-neutral-200">
-                @forelse ($alertasModal as $alerta)
-                    @include('livewire.portal.pacientes.partials.alerta-row', ['alerta' => $alerta])
-                @empty
-                    <p class="p-4 text-sm text-neutral-500">{{ __('portal/pacientes.show.no_alerts') }}</p>
-                @endforelse
+                @include('livewire.portal.pacientes.partials.alertas-table', [
+                    'alertas' => $alertasModal,
+                    'showActions' => true,
+                ])
             </div>
         </div>
     </div>
+
+    @include('livewire.portal.pacientes.partials.alertas-confirm-modals')
 @endif

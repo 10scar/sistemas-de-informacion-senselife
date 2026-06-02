@@ -16,13 +16,30 @@ class AlertaPortalService
             ->first();
     }
 
-    public function marcarComoVista(Alerta $alerta): void
+    public function resolverParaCentroSinPaciente(int $alertaId, int $centroId): ?Alerta
+    {
+        return Alerta::query()
+            ->whereKey($alertaId)
+            ->whereHas('paciente', fn ($q) => $q->where('centro_medico_id', $centroId))
+            ->first();
+    }
+
+    public function marcarEnRevision(Alerta $alerta): void
     {
         if ($alerta->estado !== AlertaEstado::Pendiente) {
             return;
         }
 
         $alerta->update(['estado' => AlertaEstado::Vista]);
+    }
+
+    public function marcarComoAtendida(Alerta $alerta): void
+    {
+        if ($alerta->estado !== AlertaEstado::Vista) {
+            return;
+        }
+
+        $alerta->update(['estado' => AlertaEstado::Atendida]);
     }
 
     public function ignorar(Alerta $alerta): void

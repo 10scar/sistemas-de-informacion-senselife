@@ -62,4 +62,6 @@ return [
 
     'alertas_toast_max' => (int) env('TELEMETRIA_ALERTAS_TOAST_MAX', 5),
 
+    'dashboard_chart_days' => (int) env('TELEMETRIA_DASHBOARD_CHART_DAYS', 7),
+
 ];

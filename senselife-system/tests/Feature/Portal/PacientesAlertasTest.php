@@ -126,6 +126,52 @@ class PacientesAlertasTest extends TestCase
         ]);
     }
 
+    public function test_confirmar_atencion_pasa_de_vista_a_atendida(): void
+    {
+        $centro = $this->crearCentro('Centro Confirmar');
+        $user = $this->crearUsuarioPortal($centro);
+        $paciente = $this->crearPaciente($centro, 'PT-CONF');
+
+        $alerta = Alerta::query()->create([
+            'fecha_creacion' => now(),
+            'id_paciente' => $paciente->id,
+            'id_telemetria' => 105,
+            'estado' => AlertaEstado::Vista,
+            'tipo' => AlertaTipo::Critico,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(Show::class, ['paciente' => $paciente])
+            ->call('atenderAlerta', $alerta->id);
+
+        $this->assertDatabaseHas('alertas', [
+            'id' => $alerta->id,
+            'estado' => AlertaEstado::Atendida->value,
+        ]);
+    }
+
+    public function test_pagina_alertas_muestra_historial_del_centro(): void
+    {
+        $centro = $this->crearCentro('Centro Alertas');
+        $user = $this->crearUsuarioPortal($centro);
+        $paciente = $this->crearPaciente($centro, 'PT-ALR');
+
+        Alerta::query()->create([
+            'fecha_creacion' => now(),
+            'id_paciente' => $paciente->id,
+            'id_telemetria' => 106,
+            'estado' => AlertaEstado::Atendida,
+            'tipo' => AlertaTipo::Critico,
+            'frecuencia_cardiaca' => 184,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('portal.alertas.index'))
+            ->assertOk()
+            ->assertSee(__('portal/alertas.title'))
+            ->assertSee('FC: 184 bpm');
+    }
+
     public function test_ignorar_alerta_pasa_a_cerrada(): void
     {
         $centro = $this->crearCentro('Centro Ignorar');
