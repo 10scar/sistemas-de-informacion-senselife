@@ -2,30 +2,7 @@
     class="sticky top-0 z-50 flex h-[60px] w-full items-center justify-between border-b border-neutral-200 bg-neutral-0 px-6 shadow-elev-control">
     <div class="flex min-w-0 items-center">
         <a href="{{ route('admin.dashboard') }}" class="flex shrink-0 items-center gap-3">
-            <span
-                class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-neutral-0"
-                aria-hidden="true">
-                <svg class="size-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M12 2L2 7L12 12L22 7L12 2Z"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path
-                        d="M2 17L12 22L22 17"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path
-                        d="M2 12L12 17L22 12"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-            </span>
+            <x-senselife-logo-mark box-class="size-9 rounded-lg" icon-class="size-5" />
             <span class="font-display text-xl font-bold leading-none tracking-tight text-primary-600">
                 {{ config('app.name') }}
             </span>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="SenseLife">
+  <rect width="32" height="32" rx="8" fill="#050677"/>
+  <circle cx="16" cy="16" r="9.5" fill="none" stroke="#fbfbfe" stroke-width="1.75"/>
+  <path d="M13.2 10.8v10.4l7.2-5.2-7.2-5.2z" fill="#fbfbfe"/>
+</svg>

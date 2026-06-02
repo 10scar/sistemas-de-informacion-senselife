@@ -1,24 +1,7 @@
 <x-layouts.app :title="__('Acceso panel clínico')">
     <div class="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-primary-900 to-accent-800 px-4 py-12 sm:px-6 sm:py-16">
         <div class="w-full max-w-[420px] rounded-3xl bg-neutral-0 p-10 shadow-elev-card">
-            <div class="flex items-center gap-3">
-                <div
-                    class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-neutral-0">
-                    <svg class="size-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true">
-                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75" />
-                        <path d="M10 8.5v7l6-3.5-6-3.5z" fill="currentColor" />
-                    </svg>
-                </div>
-                <div class="min-w-0">
-                    <p class="font-display text-xl font-bold leading-tight text-primary-600">
-                        {{ config('app.name') }}
-                    </p>
-                    <p class="mt-0.5 text-[11px] font-medium leading-snug text-neutral-600 sm:text-xs">
-                        {{ __('auth.portal_login_tagline') }}
-                    </p>
-                </div>
-            </div>
+            <x-senselife-brand size="md" :tagline="__('auth.portal_login_tagline')" />
 
             <p class="mt-7 font-mono text-xs font-medium uppercase tracking-wider text-neutral-500">
                 {{ __('auth.portal_login_section') }}
