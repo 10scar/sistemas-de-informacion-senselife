@@ -228,6 +228,8 @@ services:
     environment:
       MONGODB_URI: mongodb://mongo:27017
       PYTHONPATH: /app
+    volumes:
+      - ./senselife-data/data:/app/data
     ports: ["3001:3001"]
     depends_on:
       mongo: { condition: service_healthy }
@@ -244,7 +246,7 @@ services:
     volumes:
       - storage:/var/www/html/storage
       - public_assets:/var/www/html/public
-      - ./senselife-data/data:/var/www/senselife-data-data:ro
+      - ./senselife-data/data:/var/www/senselife-data-data
     depends_on:
       pgsql: { condition: service_healthy }
       redis: { condition: service_started }
@@ -279,11 +281,17 @@ sleep 60
 PUBLIC_IP=$(curl -fsS http://169.254.169.254/latest/meta-data/public-ipv4 || echo "127.0.0.1")
 sed -i "s|APP_URL=http://PLACEHOLDER|APP_URL=http://$PUBLIC_IP|" senselife-system/.env
 
-docker compose -f docker-compose.ec2.yml exec -T app php artisan migrate --force || true
-docker compose -f docker-compose.ec2.yml exec -T app php artisan config:cache || true
+docker compose -f docker-compose.ec2.yml exec -T app php artisan migrate --force
+docker compose -f docker-compose.ec2.yml exec -T app php artisan db:seed --force
+docker compose -f docker-compose.ec2.yml exec -T app php artisan telemetria:export-dispositivos
+docker compose -f docker-compose.ec2.yml exec -T app php artisan config:cache
+docker compose -f docker-compose.ec2.yml up -d api
 docker compose -f docker-compose.ec2.yml up -d
 
+chown -R ec2-user:ec2-user "$APP_DIR" || true
+
 echo "=== Listo: http://$PUBLIC_IP ==="
+echo "Admin: http://$PUBLIC_IP/admin/login (test@example.com / password) ==="
 USERDATA
   )
 
