@@ -1,0 +1,72 @@
+# Producción / AWS dev
+# Con RDS:    docker compose -f docker-compose.prod.yml --profile rds up -d
+# Todo en EC2: docker compose -f docker-compose.prod.yml --profile local-db up -d
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: senselife-app:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - storage:/var/www/html/storage
+    networks:
+      - senselife
+    profiles:
+      - rds
+      - local-db
+
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./public:/var/www/html/public:ro
+    depends_on:
+      - app
+    networks:
+      - senselife
+    profiles:
+      - rds
+      - local-db
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - senselife
+    profiles:
+      - rds
+      - local-db
+
+  pgsql:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-senselife}
+      POSTGRES_USER: ${DB_USERNAME:-senselife}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD}
+    volumes:
+      - pgsql-data:/var/lib/postgresql/data
+    networks:
+      - senselife
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-senselife} -d ${DB_DATABASE:-senselife}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - local-db
+
+networks:
+  senselife:
+    driver: bridge
+
+volumes:
+  storage:
+  pgsql-data:

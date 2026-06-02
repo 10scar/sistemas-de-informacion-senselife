@@ -4,8 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Usuario\Rol;
 use App\Models\Usuario\User;
+use App\Support\RolNombre;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,11 +20,18 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'rol_id' => Rol::query()->where('nombre', 'Administrador')->value('id'),
-        ]);
+        $adminRolId = Rol::query()->where('nombre', RolNombre::ADMINISTRADOR)->value('id');
+
+        User::query()->updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'rol_id' => $adminRolId,
+                'password' => Hash::make('password'),
+                'activo' => true,
+                'email_verified_at' => now(),
+            ],
+        );
 
         $this->call([
             DepartamentoMunicipioSeeder::class,
